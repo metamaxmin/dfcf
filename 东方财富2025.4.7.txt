@@ -1,0 +1,44 @@
+// KDJ文字提示策略（超买超卖+买卖信号）
+
+//========= KDJ核心计算 ==========
+N:=9; M1:=3; M2:=3;
+RSV:=(CLOSE-LLV(LOW,N))/(HHV(HIGH,N)-LLV(LOW,N))*100;
+K:SMA(RSV,M1,1),NODRAW;
+D:SMA(K,M2,1),NODRAW;
+J:3*K-2*D,NODRAW;
+
+//========= J值分级预警 ==========
+// 超买提示（顶部）
+J_OVER1:=J>82 AND J<=95;    // 初级超买
+J_OVER2:=J>95 AND J<=105;   // 强化超买
+J_OVER3:=J>105;             // 极端超买
+
+// 超卖提示（底部）
+J_UNDER1:=J>3 AND J<10;     // 初级超卖
+J_UNDER2:=J>-5 AND J<=3;    // 强化超卖
+J_UNDER3:=J<=-5;            // 极端超卖
+
+//========= 文字提示系统 ==========
+// KDJ交叉信号
+VOL_OK:=VOL>MA(VOL,5);  // 量能过滤
+//DRAWTEXT(CROSS(K,D) AND VOL_OK,L*0.98,'真金叉'),COLORCC00FF;
+DRAWTEXT(CROSS(K,D),L*1,'金叉'),COLORCC00FF;    // 底部红色文字
+DRAWTEXT(CROSS(D,K),L*1,'死叉'),COLOR04DCD9;  // 顶部绿色文字
+
+// 超买提示（右侧显示）
+DRAWTEXT(J_OVER1,H*1.012,'1'),COLORCC00FF;
+DRAWTEXT(J_OVER2,H*1.012,'2'),COLORCC00FF;
+DRAWTEXT(J_OVER3,H*1.012,'3'),COLORCC00FF;
+
+// 超卖提示（右侧显示）
+DRAWTEXT(J_UNDER1,LOW,'1'),COLOR04DCD9;
+DRAWTEXT(J_UNDER2,LOW,'2'),COLOR04DCD9;
+DRAWTEXT(J_UNDER3,LOW,'3'),COLOR04DCD9;
+
+//========= 均线系统 ==========
+MA5:MA(C,5),COLORGRAY;
+MA10:MA(C,10),COLORYELLOW;
+
+//========= MA5买卖提示 ==========
+DRAWTEXT(CROSS(C,MA5),H*1.009,'买'),COLORCC00FF;  // 紫色买入
+DRAWTEXT(CROSS(MA5,C),H*1.009,'卖'),COLOR04DCD9;  // 黄色卖出
